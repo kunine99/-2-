@@ -36,12 +36,15 @@
 					<!-- 中間的畫面 -->
 					<div class="">
 						<?php
+						// 如果有get do就用getdo,如果沒有就用home
 						$do = $_GET['do'] ?? 'home';
-						//單引號純字串
+						//單引號純字串,我的檔案名稱都會放在front裡面
 						$file = 'front/' . $do . "php";
+						// 如果檔案存在
 						if (file_exists($file)) {
 							include $file;
 						} else {
+							// 如果檔案不存在
 							include "./front/home.php";
 						}
 						?>
