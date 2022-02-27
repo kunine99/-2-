@@ -5,12 +5,17 @@ session_start();
 
 class DB
 {
-    // 題組二第一次練習
-    protected $dsn = "mysql:host=localhost;charset=utf8;dbname=web_21";  //屬性定義
-    protected $user = "root";  //屬性定義
-    protected $pw = '';  //屬性定義
-    protected $pdo;  //屬性宣告
-    protected $table;  //屬性宣告
+
+
+    protected $dsn = "mysql:host=localhost;charset=utf8;dbname=web_21";
+
+    protected $user = "root";
+
+    protected $pw = '';
+
+    protected $pdo;
+
+    protected $table;
 
     //建立建構式，在建構時帶入table名稱會建立資料庫的連線
     public function __construct($table)
@@ -19,7 +24,7 @@ class DB
         $this->pdo = new PDO($this->dsn, $this->user, $this->pw);
     }
     //此方法可能會有不帶參數，一個參數及二個參數的用法，因此使用不定參數的方式來宣告
-    
+
     public function find($id)
     {
         //複製 all的sql語句,句尾多了where
@@ -46,7 +51,7 @@ class DB
         $sql = "SELECT * FROM $this->table ";
         //依參數數量來決定進行的動作因此使用switch...case
         switch (count($arg)) {
-            case 1:
+            case 2:
                 //第一個參數必須為陣列，使用迴圈來建立條件語句的陣列
                 foreach ($arg[0] as $key => $value) {
                     $tmp[] = "`$key`='$value'";
@@ -54,7 +59,7 @@ class DB
                 //將條件語句的陣列使用implode()來轉成字串，最後再接上第二個參數(必須為字串)
                 $sql .= " WHERE " . implode(" AND ", $tmp) . " " . $arg[1];
                 break;
-            case 2:
+            case 1:
                 //判斷參數是否為陣列
                 if (is_array($arg[0])) {
                     //使用迴圈來建立條件語句的字串型式，並暫存在陣列中
@@ -73,13 +78,13 @@ class DB
         //fetchAll()加上常數參數FETCH_ASSOC是為了讓取回的資料陣列中只有欄位名稱
         return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
-    public function math($math, $col, ...$arg)
+    public function math($method, $col, ...$arg)
     {
         // 複製all *改成$math($col)
         //return的fetchall改成fetchColumn()
-        $sql = "SELECT $math($col) FROM $this->table ";
+        $sql = "SELECT $method($col) FROM $this->table ";
         switch (count($arg)) {
-            case 1:
+            case 2:
                 //第一個參數必須為陣列，使用迴圈來建立條件語句的陣列
                 foreach ($arg[0] as $key => $value) {
                     $tmp[] = "`$key`='$value'";
@@ -87,7 +92,7 @@ class DB
                 //將條件語句的陣列使用implode()來轉成字串，最後再接上第二個參數(必須為字串)
                 $sql .= " WHERE " . implode(" AND ", $tmp) . " " . $arg[1];
                 break;
-            case 2:
+            case 1:
                 //判斷參數是否為陣列
                 if (is_array($arg[0])) {
                     //使用迴圈來建立條件語句的字串型式，並暫存在陣列中
@@ -117,12 +122,11 @@ class DB
                 $tmp[] = "`$key`='$value'";
             }
             //建立更新資料(update)的sql語法
-            $sql = "UPDATE $this->table  SET " . implode(",", $tmp) . "WHERE `id`='{$array['id']}'";
+            $sql = "UPDATE $this->table SET " . implode(",", $tmp) . " WHERE `id`='{$array['id']}'";
         } else {
             //insert
-            
-            $sql = "INSERT INTO $this->table (`" . 
-            implode("`,`", array_keys($array)) . "`)VALUES('" . implode("','", $array) . "')";
+
+            $sql = "INSERT INTO $this->table (`" . implode("`,`", array_keys($array)) . "`)VALUES('" . implode("','", $array) . "')";
 
             //建立新增資料(insert)的sql語法
             /* 覺得一行式寫法太複雜可以利用變數把語法拆成多行再組合
@@ -187,7 +191,7 @@ $News = new DB('news');
 $View = new DB('view');
 $Que = new DB('que');
 $Log = new DB('log');
-//etc......
+//etc
 
 // 在base檔判斷你有沒有曾經進來的紀錄
 // 有->瀏灠人次加1
@@ -208,8 +212,8 @@ if (!isset($_SESSION['view'])) {
         $View->save($view);
         //再建一個session，表示我已經有記錄這個狀態了
         //這個人已經有session['view']了
-        $_SESSION['view'] = $view['total']; //$view['total']複製上面的就好
-
+        //$view['total']複製上面的就好
+        $_SESSION['view'] = $view['total'];
     } else {
         // 沒有存在的話
         //會造成這個狀況的代表他是今天第一個來瀏覽的人，所以直接給他1
