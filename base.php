@@ -6,11 +6,11 @@ session_start();
 class DB
 {
     // 題組二第一次練習
-    protected $dsn = "mysql:host=localhost;charset=utf8;dbname=web_21";
-    protected $user = 'root';
-    protected $pw = '';
-    protected $pdo;
-    protected $table;
+    protected $dsn = "mysql:host=localhost;charset=utf8;dbname=web_21";  //屬性定義
+    protected $user = "root";  //屬性定義
+    protected $pw = '';  //屬性定義
+    protected $pdo;  //屬性宣告
+    protected $table;  //屬性宣告
 
     //建立建構式，在建構時帶入table名稱會建立資料庫的連線
     public function __construct($table)
@@ -19,6 +19,26 @@ class DB
         $this->pdo = new PDO($this->dsn, $this->user, $this->pw);
     }
     //此方法可能會有不帶參數，一個參數及二個參數的用法，因此使用不定參數的方式來宣告
+    
+    public function find($id)
+    {
+        //複製 all的sql語句,句尾多了where
+        $sql = "SELECT * FROM $this->table WHERE ";
+
+        //複製 all的is_array那部分
+        //將arg[0]改成id
+        //刪除where
+        //else部分的要改成`id`='$id'
+        if (is_array($id)) {
+            foreach ($id as $key => $value) {
+                $tmp[] = "`$key`='$value'";
+            }
+            $sql .= implode(" AND ", $tmp);
+        } else {
+            $sql .= "`id`='$id'";
+        }
+        return $this->pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
+    }
     public function all(...$arg)
     {
         //在class中要引用內部的成員使用$this->成員名稱或方法
@@ -93,14 +113,16 @@ class DB
         //沒有 'id' 這個欄位則表示為新增的資料
         if (isset($array['id'])) {
             //update
-            foreach($array as $key =>$value){
-                $tmp[]="`$key`='$value'";
+            foreach ($array as $key => $value) {
+                $tmp[] = "`$key`='$value'";
             }
             //建立更新資料(update)的sql語法
-            $sql="update $this->table set ".implode(',',$tmp)." WHERE `id`='{$array['id']}'"; 
+            $sql = "UPDATE $this->table  SET " . implode(",", $tmp) . "WHERE `id`='{$array['id']}'";
         } else {
             //insert
-            $sql="insert into $this->table (`".implode("`,`",array_keys($array))."`)values('".implode("`,`",$array)."')";
+            
+            $sql = "INSERT INTO $this->table (`" . 
+            implode("`,`", array_keys($array)) . "`)VALUES('" . implode("','", $array) . "')";
 
             //建立新增資料(insert)的sql語法
             /* 覺得一行式寫法太複雜可以利用變數把語法拆成多行再組合
@@ -109,37 +131,19 @@ class DB
              * $sql="INSERT INTO $table (`$cols`) VALUES('$values')";        
              */
         }
-        
+
         //echo $sql;
         return $this->pdo->exec($sql);
     }
 
-    public function find($id)
-    {
-        //複製 all的sql語句,句尾多了where
-        $sql = "SELECT * FROM $this->table WHERE ";
 
-        //複製 all的is_array那部分
-        //將arg[0]改成id
-        //刪除where
-        //else部分的要改成`id`='$id'
-        if (is_array($id)) {
-            foreach ($id as $key => $value) {
-                $tmp[] = "`$key`='$value'";
-            }
-            $sql .= implode(" AND ", $tmp);
-        } else {
-            $sql .= "`id`='$id'";
-        }
-        return $this->pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
-    }
 
     public function del($id)
     {
         // 從id複製來的
         //select * 要改成delete
         //return要改成exec($sql)
-        $sql = "DELETE  FROM $this->table WHERE ";
+        $sql = "DELETE FROM $this->table WHERE ";
 
         if (is_array($id)) {
             foreach ($id as $key => $value) {
@@ -147,7 +151,7 @@ class DB
             }
             $sql .= implode(" AND ", $tmp);
         } else {
-            $sql .= "`id`='$id'";
+            $sql .= " `id`='$id'";
         }
         return $this->pdo->exec($sql);
     }
@@ -178,5 +182,38 @@ function to($url)
 
 
 //建議使用首字母大寫來代表這是資料表的變數，方便和全小寫的變數做出區隔
-
+$User = new DB('user');
+$News = new DB('news');
+$View = new DB('view');
+$Que = new DB('que');
+$Log = new DB('log');
 //etc......
+
+// 在base檔判斷你有沒有曾經進來的紀錄
+// 有->瀏灠人次加1
+// 沒有->增加今日的新紀錄,瀏灠人次為1
+
+
+if (!isset($_SESSION['view'])) {
+    // 先判斷在view資料表裡面有沒有(有沒有這件事我們都是用math來算)
+    // 請去找有沒有今天的紀錄，如果有(=已經大於0)，請撈出來
+    //if代表有存在的話,就要+1
+    if ($View->math('count', '*', ['date' => date("Y-m-d")]) > 0) {
+        //$大寫的View表示資料表
+        //find(這邊複製上面的['date'=>date("Y-m-d")])
+        $view = $View->find(['date' => date("Y-m-d")]);
+        $view['total']++;
+        // +1之後就把東西存回去
+        // $view['total'] += 1;
+        $View->save($view);
+        //再建一個session，表示我已經有記錄這個狀態了
+        //這個人已經有session['view']了
+        $_SESSION['view'] = $view['total']; //$view['total']複製上面的就好
+
+    } else {
+        // 沒有存在的話
+        //會造成這個狀況的代表他是今天第一個來瀏覽的人，所以直接給他1
+        $View->save(['date' => date("Y-m-d"), 'total' => 1]);
+        $_SESSION['view'] = 1;
+    }
+}
