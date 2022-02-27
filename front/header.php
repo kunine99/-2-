@@ -1,7 +1,7 @@
 <div id="title">
     <?=date("m月 d號 l")  ?>|
-      今日瀏覽: 1 | 
-      累積瀏覽: 36 
+      今日瀏覽: <?= $View->find(['date'=>date("Y-m-d")])['total'] ;?> | 
+      累積瀏覽: <?= $View->math('sum','total');?> 
     <!-- 回首頁要在右邊 -->
     <a href="index.php" style="float: right;">回首頁</a>
 </div>
