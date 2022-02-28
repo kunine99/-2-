@@ -64,16 +64,25 @@
                 // $.post("api/chk_acc.php", {},()=> { })
 
                 // 我要確認帳號acc,然後他的資料來自於form裡面的acc
-                $.post("api/chk_acc.php", {
-                    acc: form.acc
-                }, (chk) => {
+                $.post("api/chk_acc.php", {acc: form.acc}, (chk) => {
                     // 我預期他會回給我true or false代表(1存在或是0不存在)
                     if (parseInt(chk) == 1) {
                         alert('帳號重複')
                     } else {
-                        $.post("api/reg.php", {}, () => {
-                            alert("註冊成功，歡迎加入")
+                        // 因為資料庫沒有pw2這個欄位，所以在這邊把它刪除
+                        delete form.pw2
 
+                        // 我的form=是大誇號裡面的東西，所以直接把form丟進去
+                        //()裡面可以放chk或是res去判斷這次的新增有沒有成功
+                        $.post("api/reg.php", form, (res) => {
+                            // console.log(res);
+                            // if(parseInt(res)==1){
+                            alert("註冊成功，歡迎加入")
+                            // 註冊完成後把他導到註冊頁
+                            location.href = 'index.php?do=login'
+                            // }else{
+                            // alert("註冊失敗，歡迎加入")
+                            // }
                         })
                     }
 
@@ -81,10 +90,6 @@
 
                 })
             }
-
-            print_r($chk);
-
-
         }
 
 
