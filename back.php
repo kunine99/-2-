@@ -22,11 +22,16 @@
 		<?php include "front/header.php";?>
 		<div id="mm">
 			<div class="hal" id="lef">
+				<!-- 人氣文章移上來後改成帳號管理 -->
+				<a class="blo" href="?do=admin">帳號管理</a>
 				<a class="blo" href="?do=po">分類網誌</a>
-				<a class="blo" href="?do=news">最新文章</a>
-				<a class="blo" href="?do=pop">人氣文章</a>
-				<a class="blo" href="?do=know">講座訊息</a>
-				<a class="blo" href="?do=que">問卷調查</a>
+				<!-- 加管理 -->
+				<a class="blo" href="?do=news">最新文章管理</a>
+				<!-- 訊息改管理 -->
+				<a class="blo" href="?do=know">講座管理</a>
+				<!-- 調查改管理 -->
+				<a class="blo" href="?do=que">問卷管理</a>
+				<!-- 之後去新增back/home.php -->
 			</div>
 			<div class="hal" id="main">
 				<div>
@@ -44,7 +49,7 @@
 						<!-- 如果是admin的話要出現 -->
 						<!-- 把A標籤換成button,兩顆中間要有|-->
 						<!-- 記得加br不然很難看 -->
-							歡迎admin，<br><button onclick="location.href='back.php'">管理</button>|<button onclick='logout()'>登出</button>
+							歡迎admin，<br><button>管理</button>|<button onclick='logout()'>登出</button>
 						<?php
 						}else{
 						?>
@@ -71,16 +76,16 @@
 					<!-- 中間的畫面 -->
 					<div class="">
 						<?php
-						// 如果有get do就用getdo,如果沒有就用home
+						
 						$do = $_GET['do'] ?? 'home';
-						//單引號純字串,我的檔案名稱都會放在front裡面
-						$file = 'front/' . $do . ".php";
-						// 如果檔案存在
+						// 改back
+						$file = 'back/' . $do . ".php";
+					
 						if (file_exists($file)) {
 							include $file;
 						} else {
-							// 如果檔案不存在
-							include "front/home.php";
+						// 改back
+							include "back/home.php";
 						}
 						?>
 					</div>
