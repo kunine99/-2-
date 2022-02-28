@@ -15,40 +15,42 @@
             <td>人氣</td>
         </tr>
         <?php
-        // 先算出總共有幾篇文章
         $total = $News->math("count", "*");
-        // 接下來告訴他五筆換一頁
         $div = 5;
-        //算總頁數
         $pages = ceil($total / $div);
-        // 拿到總頁數後要知道現在在哪一頁
-        //哪一頁我們是用網址頁來做,寫3元運算
-        //如果有$_GET['p']這個東西的話,我就用這頁數,不然就從第一頁開始
         $now = $_GET['p'] ?? 1;
-        // 知道現在的頁數後就要知道我們要從哪一筆資料開始撈
-        // 比如說五筆資料就是0 5 10 15 這樣撈
-        // 比如說3筆資料就是0 3 6 9 這樣撈
         $start = ($now - 1) * $div;
 
-        // 拿到東西後就可以去撈我所有的資料
-        //我要撈出被設定sh是1的
-        //因為我要做分頁,所以我要限制limit,文章是從start開始抓多少筆資料出來
         $rows = $News->all(['sh' => 1], " order by `good` desc limit $start,$div");
-        // 抓到資料後把它顯示出來
         foreach ($rows as $key => $row) {
         ?>
             <tr>
-                <!-- 第一個要顯示title -->
                 <td class="switch"><?= $row['title']; ?></td>
-                <!-- 第二個要顯示文章內容 
-                用mb_substr去抓它一點點的文章內容
-                從0開始抓大概20個字-->
                 <td class="switch">
                     <div class="short"><?= mb_substr($row['text'], 0, 20); ?>...</div>
-                    <!-- 要用顯示隱藏功能 
-                td 加class switch
-                div加上不同的class方便識別 -->
-                    <div class="full" style="display: none;"><?= nl2br($row['text']); ?></div>
+                    <!-- 改成pop 行內樣式不要了 -->
+                    <div class="pop">
+                        <h1 style="color:skyblue;">
+                        <?php
+                        switch ($row['type']){
+                            case 1:
+                                echo "健康新知";
+                            break;
+                            case 2:
+                                echo "菸害防制";
+                            break;
+                            case 3:
+                                echo "癌症防治";
+                            break;
+                            case 4:
+                                echo "慢性病防治";
+                            break;
+                        }
+
+                        ?>
+                        </h1>
+                        <?= nl2br($row['text']); ?>
+                    </div>
                 </td>
                 <td>
                 <?=$row['good'];?>個人說<img src="icon/02B03.jpg" style="width:25px">
@@ -96,7 +98,8 @@
 
 <script>
 //將on改成hovor,刪掉click,改成pop
-    $(".switch").hovor(function() {
+    $(".switch").hover(function() {
         $(this).parent().find(".pop").toggle()
     })
+    //接下來做彈出功能
 </script>

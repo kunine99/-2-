@@ -7,13 +7,8 @@
             <td>人氣</td>
         </tr>
         <?php
-        $tarray = [
-            "1" => "健康新知",
-            "2" => "菸害防治",
-            "3" => "癌症防治",
-            "4" => "慢性病防治",
-        ];
-        $total = $News->math("count", "*", ['sh' => 1]);
+
+        $total = $News->math("count", "*");
         $div = 5;
         $pages = ceil($total / $div);
         $now = $_GET['p'] ?? 1;
@@ -26,24 +21,10 @@
                 <td class="switch"><?= $row['title']; ?></td>
                 <td class="switch">
                     <div class="short"><?= mb_substr($row['text'], 0, 20); ?>...</div>
-                    <div class="pop">
-                        <h2 style='color:skyblue'><?= $tarray[$row['type']]; ?></h2>
-                        <?= nl2br($row['text']); ?>
-                    </div>
+                    <div class="full" style="display:none"><?= nl2br($row['text']); ?></div>
                 </td>
                 <td>
-                    <span><?= $row['good']; ?></span>個人說<img src='icon/02B03.jpg' style='width:25px'>
-                    -<?php
-                        if (isset($_SESSION['login'])) {
-                            $chk = $Log->math('count', '*', ['news' => $row['id'], 'user' => $_SESSION['login']]);
-                            if ($chk > 0) {
-                                echo "<a class='g' data-news='{$row['id']}' data-type='1'>收回讚</a>";
-                            } else {
-                                echo "<a class='g' data-news='{$row['id']}' data-type='2'>讚</a>";
-                            }
-                        }
-
-                        ?>
+                    <?= $row['good']; ?>個人說<img src='icon/02B03.jpg' style='width:25px'>
                 </td>
             </tr>
         <?php
@@ -55,7 +36,7 @@
 
         if (($now - 1) > 0) {
             $prev = $now - 1;
-            echo "<a href='index.php?do=pop&p=$prev'> ";
+            echo "<a href='index.php?do=news&p=$prev'> ";
             echo " < ";
             echo " </a>";
         }
@@ -63,14 +44,14 @@
 
         for ($i = 1; $i <= $pages; $i++) {
             $font = ($now == $i) ? '24px' : '16px';
-            echo "<a href='index.php?do=pop&p=$i' style='font-size:$font'> ";
+            echo "<a href='index.php?do=news&p=$i' style='font-size:$font'> ";
             echo $i;
             echo " </a>";
         }
 
         if (($now + 1) <= $pages) {
             $next = $now + 1;
-            echo "<a href='index.php?do=pop&p=$next'> ";
+            echo "<a href='index.php?do=news&p=$next'> ";
             echo " > ";
             echo " </a>";
         }
@@ -81,31 +62,6 @@
 <script>
     $(".switch").hover(
         function() {
-            $(this).parent().find(".pop").toggle()
+            $(this).parent().find(".short,.full").toggle()
         })
-    $(".g").on("click", function() {
-        let type = $(this).data('type')
-        let news = $(this).data('news')
-        $.post("api/good.php", {
-            type,
-            news
-        }, () => {
-            location.reload()
-            /*        let count;
-                     switch(type){
-                        case 1:  //收回讚
-                           $(this).text("讚");
-                           $(this).data('type',2)
-                            count=$(this).siblings('span').text()*1
-                            $(this).siblings('span').text(count-1)
-                        break;
-                        case 2:
-                            $(this).text("收回讚");
-                            $(this).data('type',1)
-                            count=$(this).siblings('span').text()*1
-                            $(this).siblings('span').text(count+1)
-                        break;
-                    } */
-        })
-    })
 </script>
