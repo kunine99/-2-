@@ -65,7 +65,7 @@
         // 前符號
         if(($now-1)>0){
             $prev=$now-1;
-            echo "<a href='index.php?do=news&p=$prev'>";
+            echo "<a href='index.php?do=pop&p=$prev'>";
             echo " < ";
             echo "</a>";  
         }
@@ -77,8 +77,8 @@
             //如果$now==$i的話,我的字大小24p,不然的話16px
             $font = ($now == $i) ? '24px' : '16px';
             // echo我們的內容,先顯示我們的當前頁
-            //我們的當前頁在index.php?do=news這個地方 和 我們p=$i
-            echo "<a href='index.php?do=news&p=$i' style='font-size:$font'>";
+            //我們的當前頁在index.php?do=pop這個地方 和 我們p=$i
+            echo "<a href='index.php?do=pop&p=$i' style='font-size:$font'>";
             // 中間顯示我的頁碼$i
             echo $i;
             echo "</a>";
@@ -87,7 +87,7 @@
         // 後符號,不能超過我的總頁數
         if(($now+1)<=$pages){
             $next=$now+1;
-            echo "<a href='index.php?do=news&p=$next'>";
+            echo "<a href='index.php?do=pop&p=$next'>";
             echo " > ";
             echo "</a>";  
         }
