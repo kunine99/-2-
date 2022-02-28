@@ -119,30 +119,32 @@
 
 
 
-
+    //news複製來的
     //當class=g的東西被按下的時候我要做...
     $(".g").on("click",function(){
-        // 按下後我會拿到type
-        //type在帶到switch case去跟去你按的動作看是要按讚還是收回讚
+        
         let type=$(this).data('type')  
         let news=$(this).data('news')
 
-        // 我要告訴後台(我要改變後台的狀態)
-        // 誰被按讚,是誰按讚它,還要告訴它類別(是要按讚還是收回讚)
-        // 請把type跟news這兩個數據送到後台去,完成之後執行switch case這個動作
+        
         $.post("api/good.php",{type,news},()=>{
             // 拿到資料後要根據type對我的畫面上做一些事情
         location.reload()
-            // switch(type){
-            //     case 1:
-            //         $(this).text("讚");
-            //         $(this).data('type',2)
-            //     break;
-            //     case 2:
-            //         $(this).text("收回讚");
-            //         $(this).data('type',1)
-            //     break;
-            // }
+/*        let count;
+         switch(type){
+            case 1:  //收回讚
+               $(this).text("讚");
+               $(this).data('type',2)
+                count=$(this).siblings('span').text()*1
+                $(this).siblings('span').text(count-1)
+            break;
+            case 2:
+                $(this).text("收回讚");
+                $(this).data('type',1)
+                count=$(this).siblings('span').text()*1
+                $(this).siblings('span').text(count+1)
+            break;
+        } */
         })
     })
 
