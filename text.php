@@ -1,20 +1,20 @@
 <fieldset>
-    <legend>目前位置：首頁 > 人氣文章區</legend>
+    <legend>目前位置：首頁 > 最新文章區</legend>
     <table>
         <tr>
             <td width="30%">標題</td>
             <td width="50%">內容</td>
-            <td>人氣</td>
+            <td></td>
         </tr>
         <?php
 
-        $total = $News->math("count", "*");
+        $total = $News->math("count", "*", ['sh' => 1]);
         $div = 5;
         $pages = ceil($total / $div);
         $now = $_GET['p'] ?? 1;
         $start = ($now - 1) * $div;
 
-        $rows = $News->all(['sh' => 1], " order by `good` desc limit $start,$div");
+        $rows = $News->all(['sh' => 1], " limit $start,$div");
         foreach ($rows as $key => $row) {
         ?>
             <tr>
@@ -24,7 +24,17 @@
                     <div class="full" style="display:none"><?= nl2br($row['text']); ?></div>
                 </td>
                 <td>
-                    <?= $row['good']; ?>個人說<img src='icon/02B03.jpg' style='width:25px'>
+                    <?php
+                    if (isset($_SESSION['login'])) {
+                        $chk = $Log->math('count', '*', ['news' => $row['id'], 'user' => $_SESSION['login']]);
+                        if ($chk > 0) {
+                            echo "<a class='g' data-news='{$row['id']}' data-type='1'>收回讚</a>";
+                        } else {
+                            echo "<a class='g' data-news='{$row['id']}' data-type='2'>讚</a>";
+                        }
+                    }
+
+                    ?>
                 </td>
             </tr>
         <?php
@@ -60,8 +70,25 @@
     </div>
 </fieldset>
 <script>
-    $(".switch").hover(
-        function() {
-            $(this).parent().find(".short,.full").toggle()
+    $(".switch").on("click", function() {
+        $(this).parent().find(".short,.full").toggle()
+    })
+
+    $(".g").on("click",function(){
+        let type = $(this).data('type')
+        let news = $(this).data('news')
+        $.post("api/good.php",{type,news},()=>{
+            //location.reload()
+            switch (type) {
+                case 1:
+                    $(this).text("讚");
+                    $(this).data('type', 2)
+                    break;
+                case 2:
+                    $(this).text("收回讚");
+                    $(this).data('type', 1)
+                    break;
+            }
         })
+    })
 </script>

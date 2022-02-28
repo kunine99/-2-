@@ -43,9 +43,25 @@
                 td 加class switch
                 div加上不同的class方便識別 -->
                     <div class="full" style="display: none;"><?= nl2br($row['text']); ?></div>
+                    
                 </td>
                 <td>
+                    <!-- 做按讚功能,先判斷它有沒有登入 -->
+                    <?php
+                    // 如果你登入的session有在
+                    if(isset($_SESSION['login'])){
+                        // 先檢查你有沒有按做讚,條件是news這個欄位是我這篇文章的id,user是登入的使用者
+                        $chk = $Log->math('count', '*', ['news' => $row['id'], 'user' => $_SESSION['login']]);
+                        // 如果chk>0的話表示你有按過讚
+                        if($chk>0){
+                           echo "<a class='g' data-news='{$row['id']}' data-type='1'>收回讚</a>";
+                        }else{
+                            echo "<a class='g' data-news='{$row['id']}' data-type='2'>讚</a>";
 
+                        }
+                    }
+
+                    ?> 
                 </td>
             </tr>
         <?php
@@ -93,4 +109,31 @@
         $(this).parent().find(".short,.full").toggle()
     })
     // 寫完這個後去建立一個div放分頁
+
+
+    //當class=g的東西被按下的時候我要做...
+    $(".g").on("click",function(){
+        // 按下後我會拿到type
+        //type在帶到switch case去跟去你按的動作看是要按讚還是收回讚
+        let type=$(this).data('type')  
+        let news=$(this).data('news')
+
+        // 我要告訴後台(我要改變後台的狀態)
+        // 誰被按讚,是誰按讚它,還要告訴它類別(是要按讚還是收回讚)
+        // 請把type跟news這兩個數據送到後台去,完成之後執行switch case這個動作
+        $.post("api/good.php",{type,news},()=>{
+            // 拿到資料後要根據type對我的畫面上做一些事情
+        //location.reload()
+            switch(type){
+                case 1:
+                    $(this).text("讚");
+                    $(this).data('type',2)
+                break;
+                case 2:
+                    $(this).text("收回讚");
+                    $(this).data('type',1)
+                break;
+            }
+        })
+    })
 </script>
