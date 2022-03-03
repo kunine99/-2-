@@ -66,14 +66,6 @@ class DB
         //return的fetchall改成fetchColumn()
         $sql = "SELECT $method($col) FROM $this->table ";
         switch (count($arg)) {
-            case 2:
-                //第一個參數必須為陣列，使用迴圈來建立條件語句的陣列
-                foreach ($arg[0] as $key => $value) {
-                    $tmp[] = "`$key`='$value'";
-                }
-                //將條件語句的陣列使用implode()來轉成字串，最後再接上第二個參數(必須為字串)
-                $sql .= " WHERE " . implode(" AND ", $tmp) . " " . $arg[1];
-                break;
             case 1:
                 //判斷參數是否為陣列
                 if (is_array($arg[0])) {
@@ -89,6 +81,15 @@ class DB
                 }
                 break;
                 //執行連線資料庫查詢並回傳sql語句執行的結果
+            case 2:
+                //第一個參數必須為陣列，使用迴圈來建立條件語句的陣列
+                foreach ($arg[0] as $key => $value) {
+                    $tmp[] = "`$key`='$value'";
+                }
+                //將條件語句的陣列使用implode()來轉成字串，最後再接上第二個參數(必須為字串)
+                $sql .= " WHERE " . implode(" AND ", $tmp) . " " . $arg[1];
+                break;
+            
         }
         //fetchColumn()只會取回的指定欄位資料預設是查詢結果的第1欄位的值
         return $this->pdo->query($sql)->fetchColumn();
