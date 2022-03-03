@@ -25,25 +25,7 @@ class DB
     }
     //此方法可能會有不帶參數，一個參數及二個參數的用法，因此使用不定參數的方式來宣告
 
-    public function find($id)
-    {
-        //複製 all的sql語句,句尾多了where
-        $sql = "SELECT * FROM $this->table WHERE ";
 
-        //複製 all的is_array那部分
-        //將arg[0]改成id
-        //刪除where
-        //else部分的要改成`id`='$id'
-        if (is_array($id)) {
-            foreach ($id as $key => $value) {
-                $tmp[] = "`$key`='$value'";
-            }
-            $sql .= implode(" AND ", $tmp);
-        } else {
-            $sql .= "`id`='$id'";
-        }
-        return $this->pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
-    }
     public function all(...$arg)
     {
         //在class中要引用內部的成員使用$this->成員名稱或方法
@@ -51,14 +33,6 @@ class DB
         $sql = "SELECT * FROM $this->table ";
         //依參數數量來決定進行的動作因此使用switch...case
         switch (count($arg)) {
-            case 2:
-                //第一個參數必須為陣列，使用迴圈來建立條件語句的陣列
-                foreach ($arg[0] as $key => $value) {
-                    $tmp[] = "`$key`='$value'";
-                }
-                //將條件語句的陣列使用implode()來轉成字串，最後再接上第二個參數(必須為字串)
-                $sql .= " WHERE " . implode(" AND ", $tmp) . " " . $arg[1];
-                break;
             case 1:
                 //判斷參數是否為陣列
                 if (is_array($arg[0])) {
@@ -74,6 +48,14 @@ class DB
                 }
                 break;
                 //執行連線資料庫查詢並回傳sql語句執行的結果
+            case 2:
+                //第一個參數必須為陣列，使用迴圈來建立條件語句的陣列
+                foreach ($arg[0] as $key => $value) {
+                    $tmp[] = "`$key`='$value'";
+                }
+                //將條件語句的陣列使用implode()來轉成字串，最後再接上第二個參數(必須為字串)
+                $sql .= " WHERE " . implode(" AND ", $tmp) . " " . $arg[1];
+                break;
         }
         //fetchAll()加上常數參數FETCH_ASSOC是為了讓取回的資料陣列中只有欄位名稱
         return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
@@ -112,6 +94,45 @@ class DB
         return $this->pdo->query($sql)->fetchColumn();
     }
 
+
+
+    public function find($id)
+    {
+        //複製 all的sql語句,句尾多了where
+        $sql = "SELECT * FROM $this->table WHERE ";
+
+        //複製 all的is_array那部分
+        //將arg[0]改成id
+        //刪除where
+        //else部分的要改成`id`='$id'
+        if (is_array($id)) {
+            foreach ($id as $key => $value) {
+                $tmp[] = "`$key`='$value'";
+            }
+            $sql .= implode(" AND ", $tmp);
+        } else {
+            $sql .= "`id`='$id'";
+        }
+        return $this->pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function del($id)
+    {
+        // 從id複製來的
+        //select * 要改成delete
+        //return要改成exec($sql)
+        $sql = "DELETE FROM $this->table WHERE ";
+
+        if (is_array($id)) {
+            foreach ($id as $key => $value) {
+                $tmp[] = "`$key`='$value'";
+            }
+            $sql .= implode(" AND ", $tmp);
+        } else {
+            $sql .= " `id`='$id'";
+        }
+        return $this->pdo->exec($sql);
+    }
     public function save($array)
     {
         //判斷資料陣列中是否有帶有 'id' 這個欄位，有則表示為既有資料的更新
@@ -139,27 +160,6 @@ class DB
         //echo $sql;
         return $this->pdo->exec($sql);
     }
-
-
-
-    public function del($id)
-    {
-        // 從id複製來的
-        //select * 要改成delete
-        //return要改成exec($sql)
-        $sql = "DELETE FROM $this->table WHERE ";
-
-        if (is_array($id)) {
-            foreach ($id as $key => $value) {
-                $tmp[] = "`$key`='$value'";
-            }
-            $sql .= implode(" AND ", $tmp);
-        } else {
-            $sql .= " `id`='$id'";
-        }
-        return $this->pdo->exec($sql);
-    }
-
 
     public function q($sql)
     {
